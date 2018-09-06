@@ -92,6 +92,114 @@ List<Complaint> litany = Collections.list(legacyLitany);
 
 ## Consider a builder when faced with many constructor parameters
 
+Static factories and constructors share a limitation they do not scale wel to large numbers of optional parameters. Consider the case of a class representing the Nutrition Facts label that appears on packaged foods. These labels have a few required fields -- serving size, servings per container, and calorise per serving -- and more than twenty optional fields -- total fat, saturated fat , trans fat, cholesterol, sodium, and so on. Most products have nonzero values for only a few of these optional fields.
+
+**Telescoping constructor pattern**
+
+```
+// Telescoping constructor pattern - does not scale well! - Pages 11-12
+package org.effectivejava.examples.chapter02.item02.telescopingconstructor;
+
+public class NutritionFacts {
+	private final int servingSize; // (mL) required
+	private final int servings; // (per container) required
+	private final int calories; // optional
+	private final int fat; // (g) optional
+	private final int sodium; // (mg) optional
+	private final int carbohydrate; // (g) optional
+
+	public NutritionFacts(int servingSize, int servings) {
+		this(servingSize, servings, 0);
+	}
+
+	public NutritionFacts(int servingSize, int servings, int calories) {
+		this(servingSize, servings, calories, 0);
+	}
+
+	public NutritionFacts(int servingSize, int servings, int calories, int fat) {
+		this(servingSize, servings, calories, fat, 0);
+	}
+
+	public NutritionFacts(int servingSize, int servings, int calories, int fat,
+			int sodium) {
+		this(servingSize, servings, calories, fat, sodium, 0);
+	}
+
+	public NutritionFacts(int servingSize, int servings, int calories, int fat,
+			int sodium, int carbohydrate) {
+		this.servingSize = servingSize;
+		this.servings = servings;
+		this.calories = calories;
+		this.fat = fat;
+		this.sodium = sodium;
+		this.carbohydrate = carbohydrate;
+	}
+
+	public static void main(String[] args) {
+		NutritionFacts cocaCola = new NutritionFacts(240, 8, 100, 0, 35, 27);
+	}
+}
+```
+Typically this constructor invocation will require many parameters that you don't want to set, but you're forced to pass a value for them anyway. In this case, we passed a value of 0 for fat. With "only" six parameters this may not seem so bad, but it quickly gets out of hand as the number of parameters increases.
+
+**In short, the relescoping constructor pattern works, but it is hard to write client code when there are many parameters, and harder still to read it.**
+
+**JavaBeans Pattern**
+
+```
+// JavaBeans Pattern - allows inconsistency, mandates mutability - Pages 12-13
+package org.effectivejava.examples.chapter02.item02.javabeans;
+
+public class NutritionFacts {
+	// Parameters initialized to default values (if any)
+	private int servingSize = -1; // Required; no default value
+	private int servings = -1; // "     " "      "
+	private int calories = 0;
+	private int fat = 0;
+	private int sodium = 0;
+	private int carbohydrate = 0;
+
+	public NutritionFacts() {
+	}
+
+	// Setters
+	public void setServingSize(int val) {
+		servingSize = val;
+	}
+
+	public void setServings(int val) {
+		servings = val;
+	}
+
+	public void setCalories(int val) {
+		calories = val;
+	}
+
+	public void setFat(int val) {
+		fat = val;
+	}
+
+	public void setSodium(int val) {
+		sodium = val;
+	}
+
+	public void setCarbohydrate(int val) {
+		carbohydrate = val;
+	}
+
+	public static void main(String[] args) {
+		NutritionFacts cocaCola = new NutritionFacts();
+		cocaCola.setServingSize(240);
+		cocaCola.setServings(8);
+		cocaCola.setCalories(100);
+		cocaCola.setSodium(35);
+		cocaCola.setCarbohydrate(27);
+	}
+}
+```
+
+Unfortunately, the JavaBeans pattern has serious disadvantage of its own Because construction is split across multiple calls, **a JavaBean may be in an inconsistent state partway throuhg its construction.** The class does not have the option of enforcing consistency merely by checking the validity of the constructor parameters. Attempting to use an object when it's in an inconsistent state may cause failures that are far removed from the code containing the bug and hence difficult to debug. A related disadvantage is that **the JavaBean pattern precludes the passibility of making a class immutable** and requires added effort on the part of the programmer to ensure thread safety.
+
 ## Enforce the singleton property with a private constructor or an enum type
 
 ## Enforce noninstantiability with a private constructor
