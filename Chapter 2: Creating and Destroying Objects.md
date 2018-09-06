@@ -96,7 +96,7 @@ Static factories and constructors share a limitation they do not scale wel to la
 
 **Telescoping constructor pattern**
 
-```
+```java
 // Telescoping constructor pattern - does not scale well! - Pages 11-12
 package org.effectivejava.examples.chapter02.item02.telescopingconstructor;
 
@@ -142,11 +142,11 @@ public class NutritionFacts {
 ```
 Typically this constructor invocation will require many parameters that you don't want to set, but you're forced to pass a value for them anyway. In this case, we passed a value of 0 for fat. With "only" six parameters this may not seem so bad, but it quickly gets out of hand as the number of parameters increases.
 
-**In short, the relescoping constructor pattern works, but it is hard to write client code when there are many parameters, and harder still to read it.**
+> In short, the relescoping constructor pattern works, but it is hard to write client code when there are many parameters, and harder still to read it.
 
 **JavaBeans Pattern**
 
-```
+```java
 // JavaBeans Pattern - allows inconsistency, mandates mutability - Pages 12-13
 package org.effectivejava.examples.chapter02.item02.javabeans;
 
@@ -198,7 +198,7 @@ public class NutritionFacts {
 }
 ```
 
-Unfortunately, the JavaBeans pattern has serious disadvantage of its own Because construction is split across multiple calls, **a JavaBean may be in an inconsistent state partway throuhg its construction.** The class does not have the option of enforcing consistency merely by checking the validity of the constructor parameters. Attempting to use an object when it's in an inconsistent state may cause failures that are far removed from the code containing the bug and hence difficult to debug. A related disadvantage is that **the JavaBean pattern precludes the passibility of making a class immutable** and requires added effort on the part of the programmer to ensure thread safety.
+> Unfortunately, the JavaBeans pattern has serious disadvantage of its own Because construction is split across multiple calls, **a JavaBean may be in an inconsistent state partway throuhg its construction.** The class does not have the option of enforcing consistency merely by checking the validity of the constructor parameters. Attempting to use an object when it's in an inconsistent state may cause failures that are far removed from the code containing the bug and hence difficult to debug. A related disadvantage is that **the JavaBean pattern precludes the passibility of making a class immutable** and requires added effort on the part of the programmer to ensure thread safety.
 
 ## Enforce the singleton property with a private constructor or an enum type
 
