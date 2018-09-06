@@ -1,5 +1,3 @@
-#Contents
-
 - [Item 1: Consider static factory methods instead of constructors](#consider-static-factory-methods-instead-of-constructors)
 - [Item 2: Consider a builder when faced with many constructor parameters](#consider-a-builder-when-faced-with-many-constructor-parameters)
 - [Item 3: Enforce the singleton property with a private constructor or an enum type](#enforce-the-singleton-property-with-a-private-constructor-or-an-enum-type)
@@ -89,9 +87,8 @@ A concise alternative to getType and newType, for example:
 List<Complaint> litany = Collections.list(legacyLitany);
 ```
 
-```
-In summary, static factory methods and public constructors both have their uses, and it pays to understand their relative merits. Often static factories are preferable, so avoid the reflex no provide public constructors without first considering static factories.
-```
+> In summary, static factory methods and public constructors both have their uses, and it pays to understand their relative merits. Often static factories are preferable, so avoid the reflex no provide public constructors without first considering static factories.
+
 
 ## Consider a builder when faced with many constructor parameters
 
