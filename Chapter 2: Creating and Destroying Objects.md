@@ -8,7 +8,7 @@
 - [Item 8: Avoid finalizers and cleaners](#avoid-finalizers-and-cleaners)
 - [Item 9: Prefer try-with-resources to try-finally](#prefer-try-with-resources-to-try-finally)
 
-# Consider static factory methods instead of constructors
+## Consider static factory methods instead of constructors
 
 **Advantages:**
 - One advantage of static factory method is that, unlike constructors they have names.
@@ -22,7 +22,8 @@
 - A second shortcoming of static factory methods is that they are hard for programmers to find.
 
 **Some common names for static factory methods:**
-**from** -- A type-conversion method that takes a single parameter and returns a corresponding instance of this type, for example:
+
+**from();** : A type-conversion method that takes a single parameter and returns a corresponding instance of this type, for example:
 
 ```java
 Date d = Date.from(instance);
