@@ -92,7 +92,7 @@ List<Complaint> litany = Collections.list(legacyLitany);
 
 ## Consider a builder when faced with many constructor parameters
 
-Static factories and constructors share a limitation they do not scale wel to large numbers of optional parameters. Consider the case of a class representing the Nutrition Facts label that appears on packaged foods. These labels have a few required fields -- serving size, servings per container, and calorise per serving -- and more than twenty optional fields -- total fat, saturated fat , trans fat, cholesterol, sodium, and so on. Most products have nonzero values for only a few of these optional fields.
+    Static factories and constructors share a limitation they do not scale wel to large numbers of optional parameters. Consider the case of a class representing the Nutrition Facts label that appears on packaged foods. These labels have a few required fields -- serving size, servings per container, and calorise per serving -- and more than twenty optional fields -- total fat, saturated fat , trans fat, cholesterol, sodium, and so on. Most products have nonzero values for only a few of these optional fields.
 
 **Telescoping constructor pattern**
 
@@ -140,9 +140,9 @@ public class NutritionFacts {
 	}
 }
 ```
-Typically this constructor invocation will require many parameters that you don't want to set, but you're forced to pass a value for them anyway. In this case, we passed a value of 0 for fat. With "only" six parameters this may not seem so bad, but it quickly gets out of hand as the number of parameters increases.
+    Typically this constructor invocation will require many parameters that you don't want to set, but you're forced to pass a value for them anyway. In this case, we passed a value of 0 for fat. With "only" six parameters this may not seem so bad, but it quickly gets out of hand as the number of parameters increases.
 
-> In short, the relescoping constructor pattern works, but it is hard to write client code when there are many parameters, and harder still to read it.
+    In short, the telescoping constructor pattern works, but it is hard to write client code when there are many parameters, and harder still to read it.
 
 **JavaBeans Pattern**
 
@@ -198,7 +198,82 @@ public class NutritionFacts {
 }
 ```
 
-> Unfortunately, the JavaBeans pattern has serious disadvantage of its own Because construction is split across multiple calls, **a JavaBean may be in an inconsistent state partway throuhg its construction.** The class does not have the option of enforcing consistency merely by checking the validity of the constructor parameters. Attempting to use an object when it's in an inconsistent state may cause failures that are far removed from the code containing the bug and hence difficult to debug. A related disadvantage is that **the JavaBean pattern precludes the passibility of making a class immutable** and requires added effort on the part of the programmer to ensure thread safety.
+    Unfortunately, the JavaBeans pattern has serious disadvantage of its own Because construction is split across multiple calls, **a JavaBean may be in an inconsistent state partway throuhg its construction.** The class does not have the option of enforcing consistency merely by checking the validity of the constructor parameters. Attempting to use an object when it's in an inconsistent state may cause failures that are far removed from the code containing the bug and hence difficult to debug. A related disadvantage is that **the JavaBean pattern precludes the passibility of making a class immutable** and requires added effort on the part of the programmer to ensure thread safety.
+
+**Builder pattern**
+
+```java
+// Builder Pattern - Pages 14-15
+package org.effectivejava.examples.chapter02.item02.builder;
+
+public class NutritionFacts {
+	private final int servingSize;
+	private final int servings;
+	private final int calories;
+	private final int fat;
+	private final int sodium;
+	private final int carbohydrate;
+
+	public static class Builder {
+		// Required parameters
+		private final int servingSize;
+		private final int servings;
+
+		// Optional parameters - initialized to default values
+		private int calories = 0;
+		private int fat = 0;
+		private int carbohydrate = 0;
+		private int sodium = 0;
+
+		public Builder(int servingSize, int servings) {
+			this.servingSize = servingSize;
+			this.servings = servings;
+		}
+
+		public Builder calories(int val) {
+			calories = val;
+			return this;
+		}
+
+		public Builder fat(int val) {
+			fat = val;
+			return this;
+		}
+
+		public Builder carbohydrate(int val) {
+			carbohydrate = val;
+			return this;
+		}
+
+		public Builder sodium(int val) {
+			sodium = val;
+			return this;
+		}
+
+		public NutritionFacts build() {
+			return new NutritionFacts(this);
+		}
+	}
+
+	private NutritionFacts(Builder builder) {
+		servingSize = builder.servingSize;
+		servings = builder.servings;
+		calories = builder.calories;
+		fat = builder.fat;
+		sodium = builder.sodium;
+		carbohydrate = builder.carbohydrate;
+	}
+
+	public static void main(String[] args) {
+		NutritionFacts cocaCola = new NutritionFacts.Builder(240, 8)
+				.calories(100).sodium(35).carbohydrate(27).build();
+	}
+}
+```
+
+    This client code is easy to write and , more importantly, easy to read. **THe Builder pattern simulates named optional parameters** as found in Python and Scala.
+
+
 
 ## Enforce the singleton property with a private constructor or an enum type
 
