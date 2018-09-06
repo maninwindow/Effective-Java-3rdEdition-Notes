@@ -1,4 +1,4 @@
-- [Item 1: Consider static factory methods instead of constructors](#Consider-static-factory-methods-instead-of-constructors)
+- [Item 1: Consider static factory methods instead of constructors](#Item 1: Consider-static-factory-methods-instead-of-constructors)
 - [Item 2: Consider a builder when faced with many constructor parameters](#Consider-a-builder-when-faced-with-many-constructor-parameters)
 - [Item 3: Enforce the singleton property with a private constructor or an enum type](#Enforce-the-singleton-property-with-a-private-constructor-or-an-enum-type)
 - [Item 4: Enforce noninstantiability with a private constructor](#Enforce-noninstantiability-with-a-private-constructor)
