@@ -1,3 +1,5 @@
+#Contents
+
 - [Item 1: Consider static factory methods instead of constructors](#consider-static-factory-methods-instead-of-constructors)
 - [Item 2: Consider a builder when faced with many constructor parameters](#consider-a-builder-when-faced-with-many-constructor-parameters)
 - [Item 3: Enforce the singleton property with a private constructor or an enum type](#enforce-the-singleton-property-with-a-private-constructor-or-an-enum-type)
@@ -23,24 +25,70 @@
 
 **Some common names for static factory methods:**
 
-**from();** : A type-conversion method that takes a single parameter and returns a corresponding instance of this type, for example:
+**from();** -- A type-conversion method that takes a single parameter and returns a corresponding instance of this type, for example:
 
 ```java
 Date d = Date.from(instance);
 ```
 
-# Consider a builder when faced with many constructor parameters
+**of();** -- An aggregation method that takes multiple parameters and returns and instance of this type that incorporates them, for example:
 
-# Enforce the singleton property with a private constructor or an enum type
+```java
+Set<Rank> faceCards = EnumSet.of(JACK, QUEEN, KING);
+```
 
-# Enforce noninstantiability with a private constructor
+**valueOf();** -- A more verbose alternative to from and of, for example:
 
-# Prefer dependency injection to hardwiring recourses
+```java
+BigInteger prime = BigInteger.valueOf(Integer.MAX_VALUE);
+```
 
-# Avoid creating unnecessary objects
+**instance();** or **getInstance();** -- Returns an instance that is described by its parameters(if any) but cannot be said to have the same value, for example:
 
-# Eliminate obsolete object references
+```java
+StackWalker luke = StackWalker.getInstance(options);
+```
 
-# Avoid finalizers and cleaners
+**create();** or **newInstance();** -- like instance or getInstance , except that the method guarantees that each call returns a new instance , for example:
 
-# Prefer try-with-resources to try-finally
+```java
+Object newArray = Array.newInstance(classObject, arrayLen);
+```
+
+**getType();** -- Like getInstance, but used if the factory method is in a different class. Type is the type of object returned by the factory method for example:
+
+```java
+FileStore fileStore = Files.getFileStore(path);
+```
+
+**newType();** -- Like newInstance, but used if the factory method is in a different class. Type is the type of object returned by the factory method, for example:
+
+```java
+BufferedReader bufferedReader = Files.newBufferedReader(path);
+```
+
+**type();** -- A concise alternative to getType and newType, for example:
+
+```java
+List<Complaint> litany = Collections.list(legacyLitany);
+```
+
+**```
+In summary, static factory methods and public constructors both have their uses, and it pays to understand their relative merits. Often static factories are preferable, so avoid the reflex no provide public constructors without first considering static factories.
+```**
+
+## Consider a builder when faced with many constructor parameters
+
+## Enforce the singleton property with a private constructor or an enum type
+
+## Enforce noninstantiability with a private constructor
+
+## Prefer dependency injection to hardwiring recourses
+
+## Avoid creating unnecessary objects
+
+## Eliminate obsolete object references
+
+## Avoid finalizers and cleaners
+
+## Prefer try-with-resources to try-finally
