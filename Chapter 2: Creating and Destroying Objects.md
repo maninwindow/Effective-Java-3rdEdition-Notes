@@ -92,7 +92,7 @@ List<Complaint> litany = Collections.list(legacyLitany);
 
 ## Consider a builder when faced with many constructor parameters
 
-    Static factories and constructors share a limitation they do not scale wel to large numbers of optional parameters. Consider the case of a class representing the Nutrition Facts label that appears on packaged foods. These labels have a few required fields -- serving size, servings per container, and calorise per serving -- and more than twenty optional fields -- total fat, saturated fat , trans fat, cholesterol, sodium, and so on. Most products have nonzero values for only a few of these optional fields.
+   Static factories and constructors share a limitation they do not scale wel to large numbers of optional parameters. Consider the case of a class representing the Nutrition Facts label that appears on packaged foods. These labels have a few required fields -- serving size, servings per container, and calorise per serving -- and more than twenty optional fields -- total fat, saturated fat , trans fat, cholesterol, sodium, and so on. Most products have nonzero values for only a few of these optional fields.
 
 **Telescoping constructor pattern**
 
@@ -140,9 +140,9 @@ public class NutritionFacts {
 	}
 }
 ```
-    Typically this constructor invocation will require many parameters that you don't want to set, but you're forced to pass a value for them anyway. In this case, we passed a value of 0 for fat. With "only" six parameters this may not seem so bad, but it quickly gets out of hand as the number of parameters increases.
+   Typically this constructor invocation will require many parameters that you don't want to set, but you're forced to pass a value for them anyway. In this case, we passed a value of 0 for fat. With "only" six parameters this may not seem so bad, but it quickly gets out of hand as the number of parameters increases.
 
-    In short, the telescoping constructor pattern works, but it is hard to write client code when there are many parameters, and harder still to read it.
+   In short, the telescoping constructor pattern works, but it is hard to write client code when there are many parameters, and harder still to read it.
 
 **JavaBeans Pattern**
 
@@ -198,7 +198,7 @@ public class NutritionFacts {
 }
 ```
 
-    Unfortunately, the JavaBeans pattern has serious disadvantage of its own Because construction is split across multiple calls, **a JavaBean may be in an inconsistent state partway throuhg its construction.** The class does not have the option of enforcing consistency merely by checking the validity of the constructor parameters. Attempting to use an object when it's in an inconsistent state may cause failures that are far removed from the code containing the bug and hence difficult to debug. A related disadvantage is that **the JavaBean pattern precludes the passibility of making a class immutable** and requires added effort on the part of the programmer to ensure thread safety.
+   Unfortunately, the JavaBeans pattern has serious disadvantage of its own Because construction is split across multiple calls, **a JavaBean may be in an inconsistent state partway throuhg its construction.** The class does not have the option of enforcing consistency merely by checking the validity of the constructor parameters. Attempting to use an object when it's in an inconsistent state may cause failures that are far removed from the code containing the bug and hence difficult to debug. A related disadvantage is that **the JavaBean pattern precludes the passibility of making a class immutable** and requires added effort on the part of the programmer to ensure thread safety.
 
 **Builder pattern**
 
@@ -271,15 +271,65 @@ public class NutritionFacts {
 }
 ```
 
-    This client code is easy to write and , more importantly, easy to read. **THe Builder pattern simulates named optional parameters** as found in Python and Scala.
+   This client code is easy to write and , more importantly, easy to read. **THe Builder pattern simulates named optional parameters** as found in Python and Scala.
 
-
+   **The builder pattern is well suited to class hierarchies.** Use a parallel hierarchy of builders, each nested in the corresponding class. Abstract classes have abstract builders; concrete classes have concrete builders. For example, consider an abstract class at the root of a hierarchy representing various kinds of pizza.
+   
+> In summary, **the Builder pattern is a good choice when designing classes whose constructors or static factories would have more than a handful of parameters,** espacially if many of the parameters are optional or of identical type. Client code is much easier to read and write with builders than with telescoping constrcutors, and builders are much safer than JavaBeans.
 
 ## Enforce the singleton property with a private constructor or an enum type
 
+   A singleton is simply a class that is instantiated exactly once. Singletons typically represent either a stateless object such as a function or a system component that is intrinsically unique. **Making a class a singleton can make it difficult to test its clients** because it's impossible to sustitute a mock implementation for a singleton unless it implements an interface that serves as its type.
+   
+```java
+// Singleton with static factory - Page 17
+package org.effectivejava.examples.chapter02.item03.method;
+
+public class Elvis {
+	private static final Elvis INSTANCE = new Elvis();
+
+	private Elvis() {
+	}
+
+	public static Elvis getInstance() {
+		return INSTANCE;
+	}
+
+	public void leaveTheBuilding() {
+		System.out.println("Whoa baby, I'm outta here!");
+	}
+
+	// This code would normally appear outside the class!
+	public static void main(String[] args) {
+		Elvis elvis = Elvis.getInstance();
+		elvis.leaveTheBuilding();
+	}
+}
+```
+
+> The main advantage of the public field approach is that the API makes it clear that the class is a singleton: the public static field is final, so it will always contain the same object reference. The second advantage is that it's simpler.**A single-element enum type is often the best way to implement a singleton**
+
 ## Enforce noninstantiability with a private constructor
 
+```java
+// Noninstantiable utility class
+package org.effectivejava.examples.chapter02.item04;
+
+public class UtilityClass {
+	// Suppress default constructor for noninstantiability
+	private UtilityClass() {
+		throw new AssertionError();
+	}
+}
+```
+
+> Attempting to enforce noninstantiability by making a class abstract does not work. The class can be subclassed and the subclass instantiated. Furthermore, it misleads the user into thinking the class was designed for inheritance. There is, however, a simple idiom to ensure noninstantiability. A default constructor is generated only if a class contains no explicit constructors, so **a class can be made noninstantiable by including a private constructor.**
+
 ## Prefer dependency injection to hardwiring recourses
+
+**Basic dependency injection is explained with desired example code in page 40.**
+
+> In summary, do not use a singleton or static unility class to implement a class that depends on one or more underlying resources whose behavior affects that of the class, and do not have the class create these resources directly. Instead, pass the resources, or factories to create them, into the constructor (or static factory or builder). This practice, known as dependency injection, will greatly enhance the flexibility, reusability, and testability of a class.
 
 ## Avoid creating unnecessary objects
 
