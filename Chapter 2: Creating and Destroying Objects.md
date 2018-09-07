@@ -410,4 +410,72 @@ Because memory leaks typically do not manifest themselves as obvious failures, t
 
 ## Avoid finalizers and cleaners
 
+**Finalizers are unpredictable, often dangerous, and generally unnecessary. CLeaners are less dangerous than finalizers, but still unpredictable, slow, and generally unnecessary.**
+
+**Finalizers have a serious security problem: they open your class up to finalizer attacks.**
+
+**Throwing an exception from a constructor should be sufficient to prevent an object from coming into existence, in the presence of finalizers, it is not.**
+
+**To protect nonfinal classes from finalizer attacks, write a final finalize method that does nothing.**
+
+In summary, don't use cleaners, or in releases prior to Java 9, finalizers, except as a safery net or to terminate noncritical native resources. Even then, beware the indeterminacy and performance consequences.
+
 ## Prefer try-with-resources to try-finally
+
+```java
+// try-finally - No longer the best way to close resources!
+    static String firstLineOfFile(String path) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(path));
+        try {
+            return br.readLine();
+        } finally {
+            br.close();
+        }
+    }
+
+    // try-finally is ugly when used with more than one resource!
+    static void copy(String src, String dst) throws IOException {
+        InputStream in = new FileInputStream(src);
+        try {
+            OutputStream out = new FileOutputStream(dst);
+            try {
+                byte[] buf = new byte[333];
+                int n;
+                while ((n = in.read(buf)) >= 0)
+                    out.write(buf, 0, n);
+            } finally {
+                out.close();
+            }
+        } finally {
+            in.close();
+        }
+    }
+
+    // try-with-resources - the best way to close resources!
+    static String firstLineOfFileBestWay(String path) throws IOException {
+        try (BufferedReader br = new BufferedReader(
+                new FileReader(path))) {
+            return br.readLine();
+        }
+    }
+
+    // try-with-resources on multiple resources - almost and sweet
+    static void copyMultiple(String src, String dst) throws IOException {
+        try (InputStream in = new FileInputStream(src);
+             OutputStream out = new FileOutputStream(dst)) {
+            byte[] buf = new byte[333];
+            int n;
+            while ((n = in.read(buf)) >= 0)
+                out.write(buf, 0, n);
+        }
+    }
+
+    // try-with-resources with a catch clause
+    static String firstLineOfFile(String path, String defaultVal) {
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            return br.readLine();
+        } catch (IOException e) {
+            return defaultVal;
+        }
+    }
+```
