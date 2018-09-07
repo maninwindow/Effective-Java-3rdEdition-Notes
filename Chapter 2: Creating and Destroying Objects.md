@@ -418,7 +418,7 @@ Because memory leaks typically do not manifest themselves as obvious failures, t
 
 **To protect nonfinal classes from finalizer attacks, write a final finalize method that does nothing.**
 
-In summary, don't use cleaners, or in releases prior to Java 9, finalizers, except as a safery net or to terminate noncritical native resources. Even then, beware the indeterminacy and performance consequences.
+> In summary, don't use cleaners, or in releases prior to Java 9, finalizers, except as a safery net or to terminate noncritical native resources. Even then, beware the indeterminacy and performance consequences.
 
 ## Prefer try-with-resources to try-finally
 
