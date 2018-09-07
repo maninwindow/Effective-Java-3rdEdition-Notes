@@ -333,7 +333,80 @@ public class UtilityClass {
 
 ## Avoid creating unnecessary objects
 
+**Don't create new object when you should reuse the existing one.**
+
+```java
+String str = "bikini";
+```
+
+Rather than
+
+```java
+String str = new String("bikini");
+```
+
 ## Eliminate obsolete object references
+
+```java
+// Can you spot the "memory leak"?
+package org.effectivejava.examples.chapter02.item06;
+
+import java.util.Arrays;
+
+public class Stack {
+	private Object[] elements;
+	private int size = 0;
+	private static final int DEFAULT_INITIAL_CAPACITY = 16;
+
+	public Stack() {
+		elements = new Object[DEFAULT_INITIAL_CAPACITY];
+	}
+
+	public void push(Object e) {
+		ensureCapacity();
+		elements[size++] = e;
+	}
+
+	public Object pop() {
+		if (size == 0)
+			throw new EmptyStackException();
+		return elements[--size];
+	}
+
+	/**
+	 * Ensure space for at least one more element, roughly doubling the capacity
+	 * each time the array needs to grow.
+	 */
+	private void ensureCapacity() {
+		if (elements.length == size)
+			elements = Arrays.copyOf(elements, 2 * size + 1);
+	}
+}
+```
+
+So where is the memory leak? If a stack grows and then shrinks, the objects that were popped off the stack will not be garbage collected, even if the program using the stack has no more references to them. This is because the stack maintains obsolete references to these objects. An obsolete reference is simoly a reference that will never be dereferenced again. In this case, any references outside of the "action portion" of the element array are obsolete. The active portion consists of the elements whose index is less than `size`.
+
+The fix for this sort of problem is simple: null out references once they become obsolete. In the case of our Stack class, the reference to an item becomes obsolete as soon as it's popped off the stack. The corrected version of the pop method looks like this:
+
+```java
+public Object pop() {
+		if (size == 0)
+			throw new EmptyStackException();
+		Object result = elements[--size];
+		elements[size] = null; // Eliminate obsolete reference
+		return result;
+	}
+```
+
+An added benefit of nulling out obsolete references is that if they are subsequently dereferenced by mistake, the program will immediately fail with a `NullPointerException`, rather than quietly doing the wrong thing. It is always beneficial to detect programming errors as quickly as possible. **Nulling out object references should be the exception rather than the norm.** The best way to eliminate an obsolete reference is to let the variable that contained the reference fall out of scope. This occurs naturally if you define each variable inthe narrowest possible scope.
+
+Generally speaking, **whenever a class manages its own memory, the programmer should be alert for memory leaks.** Whenever an element is freed, any object reference contained in the element should be nulled out.
+
+**Another common source of memory leaks is caches.** once you put an object reference into a cache, it's easy to forget that it's there and leave it in the cache long after it becomes irrelevant. There are several solutions to this problem. If you're lucky enough to implement a cache for which an entry is relevant exactly so long as there are references to its key outside of the cache, represent the cache as a `WeakHashMap`; entries will be removed automatically after they become obsolete. Remember that `WeakHashMap` is useful only if the desired lifetime of cache entries is determined by external reference to the key, not the value.
+
+**A third common source of memory leaks is listeners and other callbacks.** If you implement an API where clients register callbacks but don't deregister them explicitly, they will accumulate unless you take some action. One way to ensure that callbacks are garbage collected properly is to storeonly weak references to them, for instance, by storing them only as keys in a `WeakHashMap`.
+
+Because memory leaks typically do not manifest themselves as obvious failures, they may remain present in a system for years. They are typically discovered only as a result of careful code inspection or with the aid of a debugging tool known as a heap profile. Therefore, it is very desirable to learn to anticipate problems like this before they occur and prevent them from happening.
 
 ## Avoid finalizers and cleaners
 
